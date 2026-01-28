@@ -1,0 +1,14 @@
+{
+  "tasks": {
+    "run": "deno run --allow-net --unstable-temporal main.ts",
+    "dev": "deno run --watch --allow-net --unstable-temporal main.ts"
+  },
+  "imports": {
+    "@b-fuze/deno-dom": "jsr:@b-fuze/deno-dom@^0.1.56"
+  },
+  "lint": {
+    "rules": {
+      "tags": ["recommended"]
+    }
+  }
+}
