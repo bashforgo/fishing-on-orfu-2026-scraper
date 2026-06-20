@@ -123,21 +123,36 @@ async function fetchActExtraDetails(
       youtube_url?: string;
     };
   }
-  const detailsResponse = await fetch(detailsUrl, {
-    headers: {
-      Accept: "application/json",
-      "X-Requested-With": "XMLHttpRequest",
+  const detailsResponse = await fetch(
+    new URL(detailsUrl, BASE_URL),
+    {
+      headers: {
+        Accept: "application/json",
+        "X-Requested-With": "XMLHttpRequest",
+      },
     },
-  });
+  );
   if (!detailsResponse.ok) return {};
   const detailsJson: ActDetails = await detailsResponse.json();
 
   const blurb = detailsJson.performer?.description == null
     ? undefined
-    : new DOMParser().parseFromString(
-      detailsJson.performer.description,
-      "text/html",
-    ).textContent?.trim();
+    : (() => {
+      const blurbDocument = new DOMParser().parseFromString(
+        detailsJson.performer.description,
+        "text/html",
+      );
+
+      for (const br of blurbDocument.querySelectorAll("br")) {
+        br.replaceWith("\n\n");
+      }
+
+      for (const p of blurbDocument.querySelectorAll("p")) {
+        p.replaceWith(p.textContent.trim() + "\n\n");
+      }
+
+      return blurbDocument.textContent.replaceAll(/\n{3,}/g, "\n\n").trim();
+    })();
 
   const url = detailsJson.performer?.youtube_url;
 
